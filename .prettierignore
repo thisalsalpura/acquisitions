@@ -4,4 +4,3 @@ logs/
 drizzle/
 *.log
 package-lock.json
-.env
