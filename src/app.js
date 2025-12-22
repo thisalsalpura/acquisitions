@@ -1,9 +1,10 @@
 import express from 'express';
-import logger from '#config/logger.js';
 import helmet from "helmet";
 import morgan from 'morgan';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import logger from '#config/logger.js';
+import authRoutes from '#routes/auth.routes.js';
 
 const app = express();
 
@@ -18,5 +19,15 @@ app.get('/', (req, res) => {
     logger.info('Request Received!');
     res.status(200).send('Hello World!');
 });
+
+app.post('/health', (req, res) => {
+    res.status(200).send({ status: 'OK', time: new Date().toISOString(), uptime: process.uptime() });
+});
+
+app.get('/api', (req, res) => {
+    res.status(200).send({ message: 'API is Working!' });
+});
+
+app.use('/api/auth', authRoutes);
 
 export default app;
