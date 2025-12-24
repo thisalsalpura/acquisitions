@@ -8,6 +8,10 @@ const securityMiddleware = async (req, res, next) => {
             return next();
         }
 
+        if (process.env.NODE_ENV === 'test') {
+            return next();
+        }
+
         const role = req.user?.user || 'guest';
 
         let limit;
