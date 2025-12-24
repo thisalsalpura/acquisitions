@@ -5,6 +5,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 ## Commands
 
 ### Setup
+
 - Install dependencies:
   - `npm install`
 - Ensure a `.env` file exists in the project root with at least:
@@ -15,6 +16,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
   - `JWT_SECRET` (JWT signing key used by `src/utils/jwt.js`)
 
 ### Running the API
+
 - Start the server in watch mode (development):
   - `npm run dev`
   - Entrypoint: `src/index.js` → `src/server.js` → `src/app.js`.
@@ -22,6 +24,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
   - `node src/index.js`
 
 ### Linting and Formatting
+
 - Lint the codebase:
   - `npm run lint`
 - Lint and auto-fix issues:
@@ -32,6 +35,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
   - `npm run format:check`
 
 ### Database (Drizzle + Neon)
+
 - Generate Drizzle migrations from models (`src/models/*.js`):
   - `npm run db:generate`
 - Run pending migrations against the database configured in `DATABASE_URL`:
@@ -40,6 +44,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
   - `npm run db:studio`
 
 ### Tests
+
 - There is currently **no test runner or `npm test` script configured** in `package.json`.
 - To run a single test in the future, first add a test framework (e.g. Vitest/Jest) and wire it into `package.json` scripts; until then there are no test commands available.
 
@@ -48,12 +53,14 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 ## High-level Architecture
 
 ### Runtime Overview
+
 - This is a Node.js/Express HTTP API, using ES modules (`"type": "module"` in `package.json`).
 - Persistence is via PostgreSQL using Drizzle ORM over a Neon serverless connection.
 - Request handling follows a layered structure:
   - **Routes** → **Controllers** → **Services** → **Database models/utilities**, with Zod-based validation and shared helpers.
 
 ### Entry Points & HTTP Surface
+
 - **Process entrypoint**: `src/index.js`
   - Loads environment variables via `dotenv/config` and imports `src/server.js`.
 - **HTTP server**: `src/server.js`
@@ -72,6 +79,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
     - `app.use('/api/auth', authRoutes)` – authentication-related endpoints.
 
 ### Module Layout & Import Aliases
+
 - `package.json` defines Node `imports` aliases used throughout the codebase:
   - `#config/*` → `./src/config/*`
   - `#controllers/*` → `./src/controllers/*`
@@ -84,6 +92,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 - Prefer these aliases for internal imports instead of relative paths to keep modules relocatable.
 
 ### Authentication Flow (Signup Path)
+
 - **Route**: `src/routes/auth.routes.js`
   - Defines `POST /api/auth/signup` mapped to the `signup` controller.
 - **Controller**: `src/controllers/auth.controller.js`
@@ -110,6 +119,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
   - `src/utils/cookies.js` centralizes secure cookie configuration (HTTP-only, `sameSite: 'strict'`, production `secure` flag, short max age).
 
 ### Database Layer
+
 - **Configuration**: `src/config/database.js`
   - Creates a Neon client from `process.env.DATABASE_URL` and wraps it with Drizzle ORM.
   - Exposes both the raw `sql` client and the Drizzle `db` instance for query building.
@@ -122,6 +132,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
   - Points Drizzle Kit at `./src/models/*.js` for schema, outputs migrations to `./drizzle`, and wires the PostgreSQL connection via `DATABASE_URL`.
 
 ### Logging & Observability
+
 - **Logger**: `src/config/logger.js`
   - Central Winston logger configured with:
     - `level` from `LOG_LEVEL` or `info` by default.
@@ -134,5 +145,6 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
   - `morgan` in `src/app.js` writes combined-format HTTP logs into the shared `logger`, so HTTP traffic appears in Winston outputs alongside application logs.
 
 ### Environment & Configuration Notes
+
 - `.env` in the project root is loaded implicitly by modules using `dotenv/config` (e.g. `src/index.js`, `src/config/database.js`).
 - When making changes that depend on environment configuration (database URL, JWT secret, logging level, etc.), prefer reading from `process.env` in a single place (e.g. config modules) and importing those values through existing helpers rather than scattering `process.env` throughout the codebase.
