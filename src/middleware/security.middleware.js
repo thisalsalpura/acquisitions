@@ -36,7 +36,7 @@ const securityMiddleware = async (req, res, next) => {
         } else if (decition.isDenied() && decition.reason.isShield()) {
             logger.warn('Shield blocked Request', { ip: req.ip, userAgent: req.get('User-Agent'), path: req.path, method: req.method });
             return res.status(403).json({ error: 'Forbidden', message: 'Request blocked by security Policy!' });
-        } else if (decition.isDenied() && decition.reason.isRateLimit) {
+        } else if (decition.isDenied() && decition.reason.isRateLimit()) {
             logger.warn('Rate limit Exceeded', { ip: req.ip, userAgent: req.get('User-Agent'), path: req.path });
             return res.status(403).json({ error: 'Forbidden', message: 'Too many Request!' });
         }
